@@ -1,8 +1,8 @@
 clear all; close all; clc;
 
 %% ------------- Parámetros ------------------------------------------
-ti = 28;                   % Temperatura inicial [°C]
-tf = 200;                  % Temperatura final [°C]
+ti = 25;                   % Temperatura inicial [°C]
+tf = 150;                  % Temperatura final [°C]
 pasos_t = 0.175;           % Paso de temperatura [°C]
 Lamda = 633;               % Longitud de onda [nm]
 Z = 12;                    % Longitud de zona sensora [mm]
@@ -93,9 +93,9 @@ for k = 1:epocas
 
         % ---------------------- Guardando dataset en .tiff ---------------
         if T(number,k) < 100
-            file_name_1 = sprintf('d_MMF_10-01-22/FSS2_exp_%06.1fnm_%04.1fmm_0%05.2fC_%04.0f.tiff', Lamda, Z, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/3/FSS2_exp_%06.1fnm_0%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
         else
-            file_name_1 = sprintf('d_MMF_10-01-22/FSS2_exp_%06.1fnm_%04.1fmm_%05.2fC_%04.0f.tiff', Lamda, Z, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/3/FSS2_exp_%06.1fnm_%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
         end
         imwrite(speckle(:,:,:, number, k), file_name_1);
         % -----------------------------------------------------------------
