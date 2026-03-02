@@ -6,7 +6,7 @@ clc;
 % === Conexión a COMSOL ===
 import com.comsol.model.util.*; % utilidades LiveLink
 % Carga modelo ya configurado en COMSOL
-model = mphload('FMF_Temperature_Variation_V2_2026.mph');
+model = mphload("C:\Users\Lab Optica\OneDrive - INSTITUTO TECNOLOGICO METROPOLITANO - ITM\Semestre 2025-2\Fundamentos de Fotónica FUNFOT04-1\Datos sinteticos\FMF_Temperature_Variation_V2_2026.mph");
 
 %% --- Parámetros del problema ---
 Lambda =  632.8e-9;           % [m]
@@ -17,7 +17,7 @@ T0 = 24;                      % [°C] Temperatura inicial
 temps = 0:0.1:176;            % [°C] rango de temperatura con step de 0.1
 CTO  = 10e-6;                %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
-L = 0.1;                      % [m] 10cm de largo de fibra
+L = 0.2;                      % [m] 10cm de largo de fibra
 R = 100e9;%[5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
 NA0 = 0.33;
 
@@ -149,7 +149,7 @@ for L_ciclo = 1:numel(Lambda)
                 Ez_rs = reshape(Ez, length_y0, length_x0);
                 if mod(temps(k),5) == 0
                     magE_md = abs(Ex_rs).^2 + abs(Ey_rs).^2 + abs(Ez_rs).^2;
-                    outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\Synthetic_Datasets\2\Modos';
+                    outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\3\Modos';
                     fname = sprintf('M%d-%02d_WL%04dnm_T%05.1fC.jpg', m, nModesToUse, Lambda(L_ciclo)*1e9, Tval); %sprintf('R%06.2fmm_T%05.1fC_M%d-%02d.jpg', R_curv*1e3, Tval, m, nModesToUse);  % p.ej. 17_25.0.jpg
                     imwrite(magE_md, fullfile(outdir, fname));%Iu8, fullfile(outdir, fname));
                     
@@ -170,7 +170,7 @@ for L_ciclo = 1:numel(Lambda)
             if k==numel(temps), speck_last = Iimg; end
             
             % === Guardar imagen grayscale del speckle por iteración (sin IPT) ===
-            outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\Synthetic_Datasets\2';
+            outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\3';
             if k == 1 && ~exist(outdir,'dir'), mkdir(outdir); end
             
             % (Opcional) comprimir rango dinámico con raíz para resaltar granos débiles:
