@@ -12,7 +12,7 @@ epocas = 2;
 
 umbral = 0.5;              % Umbral de temperatura aceptable [°C]
 
-mega = serialport("COM4",9600);             % serial arduino
+mega = serialport("COM5",9600);             % serial arduino
 configureTerminator(mega,"LF");
 flush(mega)
 speckle = zeros(1024,1280,3,floor((tf-ti)*pasos_t)+1, epocas,'uint8');
@@ -54,7 +54,7 @@ for k = 1:epocas
             else
                 temp_now = NaN;
             end
-            fprintf('Recibido: "%s"  ->  T = %g\n', line, temp_now);
+            fprintf('Recibido: "%s"  ->  T = %g; SP = %05.2f°C\n', line, temp_now, i);
 
             
             if abs(temp_now - i) < umbral
@@ -93,9 +93,9 @@ for k = 1:epocas
 
         % ---------------------- Guardando dataset en .tiff ---------------
         if T(number,k) < 100
-            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/3/FSS2_exp_%06.1fnm_0%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/4/FSS2_exp_%06.1fnm_0%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
         else
-            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/3/FSS2_exp_%06.1fnm_%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/4/FSS2_exp_%06.1fnm_%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
         end
         imwrite(speckle(:,:,:, number, k), file_name_1);
         % -----------------------------------------------------------------
