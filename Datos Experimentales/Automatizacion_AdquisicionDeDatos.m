@@ -93,9 +93,9 @@ for k = 1:epocas
 
         % ---------------------- Guardando dataset en .tiff ---------------
         if T(number,k) < 100
-            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/4/FSS2_exp_%06.1fnm_0%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/5/FSS2_exp_%06.1fnm_0%05.2fC_%04.0f_FullDispl.tiff', Lamda, T(number,k), number);
         else
-            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/4/FSS2_exp_%06.1fnm_%05.2fC_%04.0f.tiff', Lamda, T(number,k), number);
+            file_name_1 = sprintf('C:/Users/VA/Desktop/Isaac Huertas/FSS_Project/Datos Experimentales/Datasets/5/FSS2_exp_%06.1fnm_%05.2fC_%04.0f_FullDispl.tiff', Lamda, T(number,k), number);
         end
         imwrite(speckle(:,:,:, number, k), file_name_1);
         % -----------------------------------------------------------------
