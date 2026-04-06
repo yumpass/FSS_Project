@@ -17,8 +17,8 @@ T0 = 24;                      % [°C] Temperatura inicial
 temps = 0:0.1:176;            % [°C] rango de temperatura con step de 0.1
 CTO  = 10e-6;                %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
-L = 0.2;                      % [m] 10cm de largo de fibra
-R = 100e9;%[5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
+L = 0.25;                      % [m] 10cm de largo de fibra
+Displ = [0e-3, 5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
 NA0 = 0.33;
 
 
@@ -70,7 +70,7 @@ for L_ciclo = 1:numel(Lambda)
     model.param.set('n_cladd', n_clad0);
     model.param.set('wl', Lambda(L_ciclo));
     %% === Loop en curvatura ===
-    for j = 1:numel(R)
+    for j = 1:numel(Displ)
         fprintf("Usando archivo de índice: %s\n", model.func('int2').getString('filename'));
         %% === Cuadrícula cartesiana para cubrir el disco de radio b ===
         % Margen pequeño para evitar extrapolación en las fronteras
@@ -81,6 +81,8 @@ for L_ciclo = 1:numel(Lambda)
         
         rho   = hypot(Xs,Ys);
         theta = atan2(Ys,Xs);
+        %% === Calculo del radio === 
+        R = 1/sqrt((24*Displ(j))/(L.^3));
         %% === Variacion de Temperatura ===
         for k = 1:numel(temps)
             Tval = T0 + temps(k);
@@ -93,7 +95,7 @@ for L_ciclo = 1:numel(Lambda)
             n0 = n_clad*ones(size(Xs));
             n0(rho <= r_core) = n_core;
             %% === Corrección geométrica por curvatura (mapeo conforme) ===
-            nG = n0.* (1 + Xs./R(j));
+            nG = n0.* (1 + Xs./R);
             nExport = nG;
         
             %% === Enmascara fuera del disco (solo cladding <= b) ===
@@ -121,10 +123,12 @@ for L_ciclo = 1:numel(Lambda)
             model.func('int2').refresh;
             %% === Calculo cantidad de modos ===
             newNA=sqrt(n_core^2-n_clad^2);%calcula la nueva apertura numerica la cual cambia por los efectos termicos
+            fprintf('%f\n', newNA);
             V = (2*pi*r_core/Lambda(L_ciclo))*newNA;
-            M_est = round(V^2/2);
+            M_est = min(100, round(V^2/2));
+            fprintf('%f\n', M_est);
             % Cantidad de modos
-            nModesToUse = min(25, max(8, M_est));% razonable para pocos modo
+            nModesToUse = M_est;% razonable para pocos modo
             model.study('std1').feature('mode').set('neigs',nModesToUse);
 
             model.study(stdTag).run;
@@ -147,13 +151,13 @@ for L_ciclo = 1:numel(Lambda)
                 Ex_rs = reshape(Ex, length_y0, length_x0);
                 Ey_rs = reshape(Ey, length_y0, length_x0);
                 Ez_rs = reshape(Ez, length_y0, length_x0);
-                if mod(temps(k),5) == 0
-                    magE_md = abs(Ex_rs).^2 + abs(Ey_rs).^2 + abs(Ez_rs).^2;
-                    outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\3\Modos';
-                    fname = sprintf('M%d-%02d_WL%04dnm_T%05.1fC.jpg', m, nModesToUse, Lambda(L_ciclo)*1e9, Tval); %sprintf('R%06.2fmm_T%05.1fC_M%d-%02d.jpg', R_curv*1e3, Tval, m, nModesToUse);  % p.ej. 17_25.0.jpg
-                    imwrite(magE_md, fullfile(outdir, fname));%Iu8, fullfile(outdir, fname));
+                %if mod(temps(k),5) == 0
+                %    magE_md = abs(Ex_rs).^2 + abs(Ey_rs).^2 + abs(Ez_rs).^2;
+                %    outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\3\Modos';
+                %    fname = sprintf('M%d-%02d_WL%04dnm_T%05.1fC.jpg', m, nModesToUse, Lambda(L_ciclo)*1e9, Tval); %sprintf('R%06.2fmm_T%05.1fC_M%d-%02d.jpg', R_curv*1e3, Tval, m, nModesToUse);  % p.ej. 17_25.0.jpg
+                %    imwrite(magE_md, fullfile(outdir, fname));%Iu8, fullfile(outdir, fname));
                     
-                end
+                %end
                 Ex_sum = Ex_sum + Ex_rs .* exp(1i*betas(m)*Z);%C(m) .* Ex_rs .* exp(1i*betas(m)*Z);
                 Ey_sum = Ey_sum + Ey_rs .* exp(1i*betas(m)*Z);%C(m) .* Ey_rs .* exp(1i*betas(m)*Z);
                 Ez_sum = Ez_sum + Ez_rs .* exp(1i*betas(m)*Z);%C(m) .* Ez_rs .* exp(1i*betas(m)*Z);
@@ -170,7 +174,7 @@ for L_ciclo = 1:numel(Lambda)
             if k==numel(temps), speck_last = Iimg; end
             
             % === Guardar imagen grayscale del speckle por iteración (sin IPT) ===
-            outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\3';
+            outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Datasets 100 Modos';
             if k == 1 && ~exist(outdir,'dir'), mkdir(outdir); end
             
             % (Opcional) comprimir rango dinámico con raíz para resaltar granos débiles:
@@ -186,7 +190,7 @@ for L_ciclo = 1:numel(Lambda)
             end
             
             % Nombre y escritura del JPG (grayscale por ser matriz 2D)
-            fname = sprintf('WL%04dnm_T%05.1fC_M%02d.jpg', Lambda(L_ciclo)*1e9, Tval, nModesToUse);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
+            fname = sprintf('Disp%04.0fmm_T%05.1fC.tiff', Displ(j), Tval);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
             imwrite(Iu8, fullfile(outdir, fname));%Iu8, fullfile(outdir, fname));
         
             % (Opcional) aquí puedes calcular correlaciones con un patrón referencia, etc.
