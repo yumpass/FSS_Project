@@ -9,17 +9,17 @@ import com.comsol.model.util.*; % utilidades LiveLink
 model = mphload("C:\Users\Lab Optica\OneDrive - INSTITUTO TECNOLOGICO METROPOLITANO - ITM\Semestre 2025-2\Fundamentos de Fotónica FUNFOT04-1\Datos sinteticos\FMF_Temperature_Variation_V2_2026.mph");
 
 %% --- Parámetros del problema ---
-Lambda =  632.8e-9;           % [m]
+Lambda = 632.8e-9;           % [m]
 r_core = 62.5e-6/2;                   % [m] radio del nucleo
 r_cladd = 120e-6/2;                    % [m] radio revestimiento
-Z  = 10e-3;                  % 0.3 mm en metros (longitud de perturbación)
-T0 = 24;                      % [°C] Temperatura inicial
-temps = 0:0.1:176;            % [°C] rango de temperatura con step de 0.1
+Z  = 0e-3;                  % 0.3 mm en metros (longitud de perturbación)
+T0 = 74.9;                      % [°C] Temperatura inicial
+temps = 0:0.1:125.1;            % [°C] rango de temperatura con step de 0.1
 CTO  = 10e-6;                %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
 L = 0.25;                      % [m] 10cm de largo de fibra
-Displ = [0e-3, 5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
-NA0 = 0.33;
+Displ = [15e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
+NA0 = 0.29;
 
 
 %% --- Malla de muestreo para el speckle (plano de salida) ---
@@ -85,6 +85,7 @@ for L_ciclo = 1:numel(Lambda)
         R = 1/sqrt((24*Displ(j))/(L.^3));
         %% === Variacion de Temperatura ===
         for k = 1:numel(temps)
+            fprintf("Code Still running");
             Tval = T0 + temps(k);
             n_core = (n_core0+CTO*(Tval-T0));
             n_clad = (n_clad0+CTO_cladd*(Tval-T0));
@@ -92,6 +93,7 @@ for L_ciclo = 1:numel(Lambda)
             model.param.set('n_cladd', n_clad);
             %% === Perfil base n0(r): step-index ===
             %Step-index simple:
+            
             n0 = n_clad*ones(size(Xs));
             n0(rho <= r_core) = n_core;
             %% === Corrección geométrica por curvatura (mapeo conforme) ===
@@ -108,7 +110,6 @@ for L_ciclo = 1:numel(Lambda)
             nList = nExport(mask);
             
             nTable = [xList(:), yList(:), nList(:)];
-        
             %% === Enviar n(x,y) a COMSOL como Interpolation 2D (n_interp) ===
             tmpfile = fullfile(tempdir, sprintf('nxyn_fiber_curved_linear.txt', R(j)*1e3));
             fid = fopen(tmpfile,'w');
@@ -123,10 +124,10 @@ for L_ciclo = 1:numel(Lambda)
             model.func('int2').refresh;
             %% === Calculo cantidad de modos ===
             newNA=sqrt(n_core^2-n_clad^2);%calcula la nueva apertura numerica la cual cambia por los efectos termicos
-            fprintf('%f\n', newNA);
+            %fprintf('%f\n', newNA);
             V = (2*pi*r_core/Lambda(L_ciclo))*newNA;
             M_est = min(100, round(V^2/2));
-            fprintf('%f\n', M_est);
+            %fprintf('%f\n', M_est);
             % Cantidad de modos
             nModesToUse = M_est;% razonable para pocos modo
             model.study('std1').feature('mode').set('neigs',nModesToUse);
@@ -139,6 +140,7 @@ for L_ciclo = 1:numel(Lambda)
             Ey_sum = zeros(length_y0,length_x0);  
             Ez_sum = zeros(length_y0,length_x0);  
             for m = 1:nModesToUse
+                fprintf("Usando modo: %d \n", m)
                 betas(m) = get_beta(m);
                 Ex = get_Ex(m); Ex = Ex(:);   
                 Ey = get_Ey(m); Ey = Ey(:); 
@@ -174,7 +176,7 @@ for L_ciclo = 1:numel(Lambda)
             if k==numel(temps), speck_last = Iimg; end
             
             % === Guardar imagen grayscale del speckle por iteración (sin IPT) ===
-            outdir = 'C:\Users\Lab Optica\Desktop\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Datasets 100 Modos';
+            outdir = 'D:\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Datasets 100 Modos';
             if k == 1 && ~exist(outdir,'dir'), mkdir(outdir); end
             
             % (Opcional) comprimir rango dinámico con raíz para resaltar granos débiles:
@@ -190,10 +192,11 @@ for L_ciclo = 1:numel(Lambda)
             end
             
             % Nombre y escritura del JPG (grayscale por ser matriz 2D)
-            fname = sprintf('Disp%04.0fmm_T%05.1fC.tiff', Displ(j), Tval);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
-            imwrite(Iu8, fullfile(outdir, fname));%Iu8, fullfile(outdir, fname));
-        
-            % (Opcional) aquí puedes calcular correlaciones con un patrón referencia, etc.
+            fname = sprintf('Disp%04.0fmm_T%05.1fC.tiff', Displ(j)*1e3, Tval);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
+            imwrite(Iu8, fullfile(outdir, fname),'tiff', 'Compression', 'none');%Iu8, fullfile(outdir, fname));
+            clear Iu8
+            drawnow
+            
         end
     end    
 end
