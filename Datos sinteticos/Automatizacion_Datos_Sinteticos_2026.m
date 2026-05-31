@@ -13,12 +13,12 @@ Lambda = 632.8e-9;           % [m]
 r_core = 62.5e-6/2;                   % [m] radio del nucleo
 r_cladd = 120e-6/2;                    % [m] radio revestimiento
 Z  = 0e-3;                  % 0.3 mm en metros (longitud de perturbación)
-T0 = 74.9;                      % [°C] Temperatura inicial
-temps = 0:0.1:125.1;            % [°C] rango de temperatura con step de 0.1
+T0 = 125.4;                      % [°C] Temperatura inicial
+temps = 0:0.1:74.6;            % [°C] rango de temperatura con step de 0.1
 CTO  = 10e-6;                %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
 L = 0.25;                      % [m] 10cm de largo de fibra
-Displ = [15e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
+Displ = [10e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
 NA0 = 0.29;
 
 
