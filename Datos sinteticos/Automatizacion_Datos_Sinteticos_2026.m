@@ -12,13 +12,13 @@ model = mphload("C:\Users\Lab Optica\OneDrive - INSTITUTO TECNOLOGICO METROPOLIT
 Lambda = 632.8e-9;           % [m]
 r_core = 62.5e-6/2;                   % [m] radio del nucleo
 r_cladd = 120e-6/2;                    % [m] radio revestimiento
-Z  = 0e-3;                  % 0.3 mm en metros (longitud de perturbación)
-T0 = 124.6;                      % [°C] Temperatura inicial
-temps = 0:0.1:75.4;            % [°C] rango de temperatura con step de 0.1
-CTO  = 10e-6;                %coeficiente termo-optico del nucleo %11.9e-6;              
+Z  = 0.3e-3;                  % 0.3 mm en metros (longitud de perturbación)
+T0 = 24;                      % [°C] Temperatura inicial
+temps = [0:0.1:176];            % [°C] rango de temperatura con step de 0.1
+CTO  = 10e-6;               %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
 L = 0.25;                      % [m] 10cm de largo de fibra
-Displ = [5e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
+Displ = [0e-3, 5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
 NA0 = 0.29;
 
 
@@ -111,7 +111,7 @@ for L_ciclo = 1:numel(Lambda)
             
             nTable = [xList(:), yList(:), nList(:)];
             %% === Enviar n(x,y) a COMSOL como Interpolation 2D (n_interp) ===
-            tmpfile = fullfile(tempdir, sprintf('nxyn_fiber_curved_linear.txt', R(j)*1e3));
+            tmpfile = fullfile(tempdir, sprintf('nxyn_fiber_curved_linear.txt', Displ(j)*1e3));
             fid = fopen(tmpfile,'w');
             fprintf(fid, '%% x[m]\ty[m]\tn\n');
             fclose(fid);
@@ -126,7 +126,9 @@ for L_ciclo = 1:numel(Lambda)
             newNA=sqrt(n_core^2-n_clad^2);%calcula la nueva apertura numerica la cual cambia por los efectos termicos
             %fprintf('%f\n', newNA);
             V = (2*pi*r_core/Lambda(L_ciclo))*newNA;
-            M_est = min(100, round(V^2/2));
+            fprintf("Numero de modos calculado: %d \n", round(V^2/2))
+            M_est = min(500, round(V^2/2));
+            fprintf("Numero de modos usados: %d \n", M_est)
             %fprintf('%f\n', M_est);
             % Cantidad de modos
             nModesToUse = M_est;% razonable para pocos modo
@@ -176,7 +178,7 @@ for L_ciclo = 1:numel(Lambda)
             if k==numel(temps), speck_last = Iimg; end
             
             % === Guardar imagen grayscale del speckle por iteración (sin IPT) ===
-            outdir = 'D:\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Datasets 100 Modos';
+            outdir = 'D:\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Dataset 500 Modos';
             if k == 1 && ~exist(outdir,'dir'), mkdir(outdir); end
             
             % (Opcional) comprimir rango dinámico con raíz para resaltar granos débiles:
@@ -192,7 +194,7 @@ for L_ciclo = 1:numel(Lambda)
             end
             
             % Nombre y escritura del JPG (grayscale por ser matriz 2D)
-            fname = sprintf('Disp%04.0fmm_T%05.1fC.tiff', Displ(j)*1e3, Tval);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
+            fname = sprintf('Disp%04.0fmm_T%05.1fC_%dmodes.tiff', Displ(j)*1e3, Tval, nModesToUse);%_M%02d.jpg',Lambda(L_ciclo)*1e9, R*1e3, Tval, nModesToUse);
             imwrite(Iu8, fullfile(outdir, fname),'tiff', 'Compression', 'none');%Iu8, fullfile(outdir, fname));
             clear Iu8
             drawnow
