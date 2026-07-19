@@ -13,17 +13,18 @@ Lambda = 632.8e-9;           % [m]
 r_core = 62.5e-6/2;                   % [m] radio del nucleo
 r_cladd = 120e-6/2;                    % [m] radio revestimiento
 Z  = 0.3e-3;                  % 0.3 mm en metros (longitud de perturbación)
-T0 = 20;                      % [°C] Temperatura inicial
-temps = [0:10:180];            % [°C] rango de temperatura con step de 0.1
+T0 = 24;                      % [°C] Temperatura inicial
+temps = [0:0.1: m|QER78908/-*/176];            % [°C] rango de temperatura con step de 0.1
 CTO  = 10e-6;               %coeficiente termo-optico del nucleo %11.9e-6;              
 CTO_cladd = 10.5e-6;          %coeficiente termo-optico del revestimiento silica glass(SiO2)
 L = 0.25;                      % [m] 10cm de largo de fibra
-Displ = [0e-3, 5e-3, 10e-3, 15e-3, 20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
+Displ = [20e-3];                    % [m] radio de curvatura efectivo (eje x radial saliente)
 NA0 = 0.29;
 
 
 %% --- Malla de muestreo para el speckle (plano de salida) ---
-% Rejilla cartesiana en la sección (para mphinterp)
+ Rejilla cartesiana en la sección (para mphinterp)
+ }
 Deltax=0.1*1e-6;
 x0=-r_core:Deltax:r_core; % ± radio del nucleo
 y0=-r_core:Deltax:r_core; % ± radio del nucleo
@@ -127,7 +128,7 @@ for L_ciclo = 1:numel(Lambda)
             %fprintf('%f\n', newNA);
             V = (2*pi*r_core/Lambda(L_ciclo))*newNA;
             fprintf("Numero de modos calculado: %d \n", round(V^2/2))
-            M_est = min(500, round(V^2/2));
+            M_est = min(100, round(V^2/2));
             fprintf("Numero de modos usados: %d \n", M_est)
             %fprintf('%f\n', M_est);
             % Cantidad de modos
@@ -178,7 +179,7 @@ for L_ciclo = 1:numel(Lambda)
             if k==numel(temps), speck_last = Iimg; end
             
             % === Guardar imagen grayscale del speckle por iteración (sin IPT) ===
-            outdir = 'D:\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Dataset 500 Modos';
+            outdir = 'D:\Isaac Huertas\FSS_Proyect\Datos sinteticos\Datasets\Dataset 100 Modos Repuesto';
             if k == 1 && ~exist(outdir,'dir'), mkdir(outdir); end
             
             % (Opcional) comprimir rango dinámico con raíz para resaltar granos débiles:
